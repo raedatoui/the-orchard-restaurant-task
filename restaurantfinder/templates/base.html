@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}The Orchard | Restaurant Task{% endblock %}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/app.css">
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    <div class="wrapper">
+        <section class="main-header">
+            <h2>The Orchard | Restaurant Finder</h2>
+        </section>
+
+        <div id="app" class="main-container">
+            <div class="navigation-container">
+                <nav class="main-navigation">
+                    <ul class="navigation-group">
+                        <li class="navigation-group-item"><a href="/" class="navigation-link active">Dataviz</a></li>
+                        <li class="navigation-group-item"><a href="/etk" class="navigation-link">ETL</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <main class="main-content" role="main">
+                {% block content %} {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    {% block script %} {% endblock %}
+</body>
+</html>
