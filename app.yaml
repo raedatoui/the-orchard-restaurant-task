@@ -2,6 +2,7 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
+
 handlers:
 - url: /static
   static_dir: restaurantfinder/static
@@ -20,6 +21,8 @@ handlers:
     X-Content-Type-Options: "nosniff"
     X-XSS-Protection: "1; mode=block"
 
+includes:
+- lib/mapreduce/include.yaml
 
 libraries:
   - name: webapp2

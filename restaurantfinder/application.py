@@ -27,8 +27,7 @@ def create_app(config):
     """
 
     # Initialize app. Flatten config_obj to dictionary (resolve properties).
-    app = Flask(__name__, template_folder=TEMPLATE_FOLDER,
-                static_folder=STATIC_FOLDER)
+    app = Flask(__name__)
     config_dict = dict(
         [(k, getattr(config, k)) for k in dir(config) if
          not k.startswith('_')])

@@ -12,7 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 from google.appengine.ext import vendor
 
 # Add any libraries installed in the "lib" folder.
 vendor.add('lib')
+
+
+class StubsFilter(logging.Filter):
+
+    def filter(self, record):
+        return 'stubs.py' != record.filename
+
+logging.root.addFilter(StubsFilter())
