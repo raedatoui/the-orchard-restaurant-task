@@ -4,20 +4,14 @@ import logging
 
 import cloudstorage.cloudstorage_api as gcs
 from flask import current_app as app
-
+from google.appengine.api import memcache
 from mapreduce import base_handler
 from mapreduce import mapreduce_pipeline
-from restaurantfinder.utils import gcs
-from google.appengine.ext import ndb
 
 from restaurantfinder import models
+from restaurantfinder.utils import gcs
 
 log = logging.getLogger(__name__)
-
-STORAGE_LOCAL_BUCKET_PREFIX = '/_ah/gcs'
-STORAGE_LIFE_BUCKET_PREFIX = 'https://storage.googleapis.com'
-
-FILE_PATH = None
 
 
 def create_restaurant(row):
@@ -33,44 +27,55 @@ def delete_restaurant(entity):
 class ResetPipeline(base_handler.PipelineBase):
     def run(self):
         yield mapreduce_pipeline.MapperPipeline(
-            "delete_restaurant",
+            "Reset Datastore",
             handler_spec="restaurantfinder.etl.delete_restaurant",
             input_reader_spec="mapreduce.input_readers.DatastoreInputReader",
             params={
                 "entity_kind": "restaurantfinder.models.Restaurant"
-            }
+            },
+            shards=50
         )
 
 
 class ExtractPipeline(base_handler.PipelineBase):
-    def run(self):
-        global FILE_PATH
-
+    def run(self, filename):
+        file_path = gcs.abs_filename(filename)
         yield mapreduce_pipeline.MapperPipeline(
-            "gcs_csv_reader_job",
+            "Populate Datastore",
             "restaurantfinder.etl.create_restaurant",
             "restaurantfinder.utils.gcs_reader.GoogleStorageLineInputReader",
             params={
                 "input_reader": {
-                    "file_paths": [FILE_PATH]
+                    "file_paths": [file_path]
                 }
-            })
+            },
+            shards=50
+        )
 
 
-def load_restaurant_data():
-    global FILE_PATH
+def load_restaurant_data(filename):
     with app.app_context():
-        filename = app.config['RESTAURANTS_CSV']
-        file_path = gcs.abs_filename(filename)
-        FILE_PATH = file_path
-        extractor = ExtractPipeline()
+        extractor = ExtractPipeline(filename)
+        set_current_extractor(extractor)
         extractor.start()
         return extractor
 
 
 def clear_restaurant_data():
-    global FILE_PATH
+    cleaner = ResetPipeline()
+    cleaner.start()
+    return cleaner
+
+
+def set_current_extractor(pipeline):
+    memcache.add('current_extractor', pipeline.pipeline_id)
+
+
+def clear_current_extractor():
+    memcache.delete('current_extractor')
+
+
+def is_working():
     with app.app_context():
-        cleaner = ResetPipeline()
-        cleaner.start()
-        return cleaner
+        print memcache.get('current_extractor')
+        return memcache.get('current_extractor') is not None

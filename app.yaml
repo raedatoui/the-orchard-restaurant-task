@@ -60,9 +60,10 @@ skip_files:
   - ^.*node_modules/.*
   - ^.src/.*
   - ^\.git/.*
-  - package.json
-  - package-lock.json
-  - gulpfile.js
+  - restaurantfinder/static/package.json
+  - restaurantfinder/static/package-lock.json
+  - restaurantfinder/static/local.csv
+  - restaurantfinder/static/gulpfile.js
   - README.md
   - Makefile
 

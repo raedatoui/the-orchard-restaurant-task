@@ -2,6 +2,7 @@ from datetime import datetime
 from google.appengine.ext import ndb
 from restaurantfinder.utils import csv_parser
 
+
 class Restaurant(ndb.Model):
     name = ndb.StringProperty(required=True)
     boro = ndb.StringProperty()
@@ -63,9 +64,10 @@ class Restaurant(ndb.Model):
 
     @staticmethod
     def get_int(v):
-        if v == '':
+        try:
+            return int(v)
+        except Exception:
             return 0
-        return int(v)
 
     @classmethod
     def create_from_row(cls, csv_row):
