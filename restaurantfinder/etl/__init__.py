@@ -4,7 +4,7 @@ import logging
 
 import cloudstorage.cloudstorage_api as gcs
 from flask import current_app as app
-from google.appengine.api import memcache
+from google.appengine.ext import ndb
 from mapreduce import base_handler
 from mapreduce import mapreduce_pipeline
 
@@ -21,7 +21,7 @@ def create_restaurant(row):
 
 
 def delete_restaurant(entity):
-    yield entity.key.delete()
+    return entity.key.delete()
 
 
 class ResetPipeline(base_handler.PipelineBase):
@@ -40,42 +40,68 @@ class ResetPipeline(base_handler.PipelineBase):
 class ExtractPipeline(base_handler.PipelineBase):
     def run(self, filename):
         file_path = gcs.abs_filename(filename)
-        yield mapreduce_pipeline.MapperPipeline(
+        yield mapreduce_pipeline.MapPipeline(
             "Populate Datastore",
             "restaurantfinder.etl.create_restaurant",
             "restaurantfinder.utils.gcs_reader.GoogleStorageLineInputReader",
             params={
                 "input_reader": {
                     "file_paths": [file_path]
-                }
+                },
+                "done_callback": "/etl/",
+                "done_callback_method": "POST"
             },
             shards=50
         )
 
 
+class Extractor(ndb.Model):
+    pipeline_id = ndb.StringProperty()
+    base_path = ndb.StringProperty()
+    running = ndb.BooleanProperty()
+
+    @classmethod
+    def get(cls):
+        r = cls.query().fetch()
+        if len(r) == 0:
+            return None
+        return r[0]
+
+    @classmethod
+    def set(cls, pipeline):
+        log.info("updating current job{}".format(pipeline.pipeline_id))
+        job = cls.get()
+        if not job:
+            job = cls()
+        job.running = True
+        job.base_path = pipeline.base_path
+        job.pipeline_id = pipeline.pipeline_id
+        job.put()
+
+    @classmethod
+    def clear(cls):
+        job = cls.get()
+        job.running = False
+        job.put()
+
+    @classmethod
+    def is_working(cls):
+        job = cls.get()
+        if not job:
+            return False
+        return job.running
+
+
 def load_restaurant_data(filename):
     with app.app_context():
-        extractor = ExtractPipeline(filename)
-        set_current_extractor(extractor)
-        extractor.start()
-        return extractor
+        job = ExtractPipeline(filename)
+        job.start()
+        Extractor.set(job)
+        return job
 
 
 def clear_restaurant_data():
-    cleaner = ResetPipeline()
-    cleaner.start()
-    return cleaner
-
-
-def set_current_extractor(pipeline):
-    memcache.add('current_extractor', pipeline.pipeline_id)
-
-
-def clear_current_extractor():
-    memcache.delete('current_extractor')
-
-
-def is_working():
-    with app.app_context():
-        print memcache.get('current_extractor')
-        return memcache.get('current_extractor') is not None
+    job = ResetPipeline()
+    job.start()
+    Extractor.set(job)
+    return job

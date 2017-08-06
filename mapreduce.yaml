@@ -2,7 +2,7 @@ mapreduce:
 - name: Populate Datastore
   params:
   - name: done_callback
-    value: /etl/done
+    value: /etl
   mapper:
     handler: restaurantfinder.etl.create_restaurant
     input_reader: restaurantfinder.utils.gcs_reader.GoogleStorageLineInputReader
@@ -15,7 +15,7 @@ mapreduce:
 - name: Reset Datastore
   params:
   - name: done_callback
-    value: /etl/cleanup/done
+    value: /etl/cleanup
   mapper:
     handler: restaurantfinder.etl.delete_restaurant
     input_reader: mapreduce.input_readers.DatastoreInputReader
@@ -23,4 +23,4 @@ mapreduce:
     - name: entity_kind
       default: restaurantfinder.models.Restaurant
     - name: shard_count
-      default: 50
+      default: 500

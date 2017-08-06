@@ -1,6 +1,10 @@
 from datetime import datetime
+import logging
+
 from google.appengine.ext import ndb
 from restaurantfinder.utils import csv_parser
+
+log = logging.getLogger(__name__)
 
 
 class Restaurant(ndb.Model):
