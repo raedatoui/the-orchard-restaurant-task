@@ -10,12 +10,12 @@ SERVICE_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json?address={}
 MAPS_API_KEY = "AIzaSyCf_98nh6p0zMPbOQ3L7fDfjmPnPWoZDog"
 
 
-def get_coords_from_address(row):
+def get_coords_from_address(restaurant):
     address = "{} {} {} {}".format(
-        row["BUILDING"],
-        row["STREET"],
-        row["BORO"],
-        row["ZIPCODE"]
+        restaurant.building,
+        restaurant.street,
+        restaurant.boro,
+        restaurant.zipcode
     ).replace(" ", "+")
 
     url = SERVICE_ENDPOINT.format(address, MAPS_API_KEY)
@@ -28,6 +28,7 @@ def get_result(rpc):
     try:
         result = rpc.get_result()
         if result.status_code == 200:
+            print result.content
             result = json.loads(result.content)['results'][0]
             return result['formatted_address'], result['geometry']['location']
     except urlfetch.DownloadError:

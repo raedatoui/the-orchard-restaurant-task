@@ -10,25 +10,32 @@ CUISINE_FIELD = "CUISINE DESCRIPTION"
 
 class Restaurant(ndb.Model):
     name = ndb.StringProperty(required=True)
+
     address = ndb.StringProperty()
     lat = ndb.FloatProperty()
     lng = ndb.FloatProperty()
+    building = ndb.StringProperty()
+    street = ndb.StringProperty()
+    boro = ndb.StringProperty()
+    zipcode = ndb.StringProperty()
 
     phone = ndb.StringProperty()
     cuisine = ndb.StringProperty()
     inspection_date = ndb.DateProperty()
-    action = ndb.StringProperty()
+    # action = ndb.StringProperty()
     # violation_code = ndb.StringProperty()
-    violation_description = ndb.StringProperty()
+    # violation_description = ndb.StringProperty()
     critical_flag = ndb.BooleanProperty()
     score = ndb.IntegerProperty()
     grade = ndb.StringProperty()
     grade_date = ndb.DateProperty()
     record_date = ndb.DateProperty()
-    inspection_type = ndb.StringProperty()
+
+    # inspection_type = ndb.StringProperty()
 
     def to_dict(self, include=None, exclude=None):
-        result = super(Restaurant, self).to_dict(include=include, exclude=exclude)
+        result = super(Restaurant, self).to_dict(include=include,
+                                                 exclude=exclude)
         for d in ['inspection_date', 'grade_date', 'record_date']:
             v = getattr(self, d)
             if v is not None:
@@ -72,7 +79,11 @@ class Restaurant(ndb.Model):
             phone=row["PHONE"],
             cuisine=row["CUISINE DESCRIPTION"],
             inspection_date=cls.get_date(row["INSPECTION DATE"]),
-            action=row["ACTION"],
+            building=row["BUILDING"],
+            street=row["STREET"],
+            boro=row["BORO"],
+            zipcode=row["ZIPCODE"],
+            # action=row["ACTION"],
             # violation_code=row["VIOLATION CODE"],
             # violation_description=row["VIOLATION DESCRIPTION"],
             critical_flag=cls.is_critical(row["CRITICAL FLAG"]),
@@ -81,4 +92,8 @@ class Restaurant(ndb.Model):
             grade_date=cls.get_date(row["GRADE DATE"]),
             record_date=cls.get_date(row["RECORD DATE"]),
             # inspection_type=row["INSPECTION TYPE"]
-        ).put_async()
+        ).put()
+
+    @classmethod
+    def get_best_rated(cls):
+        return cls.query().fetch()

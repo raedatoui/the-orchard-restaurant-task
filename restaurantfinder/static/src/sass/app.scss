@@ -1,4 +1,13 @@
-@import "base/_variables";
-@import "base/_normalize";
-@import "base/_general";
-@import "_layout";
+html, body {
+  height: 100%;
+}
+
+.main-navbar {
+  margin-bottom: 20px;
+}
+
+.monitor {
+    display: block;
+    width: 100%;
+    height: 100%;
+}

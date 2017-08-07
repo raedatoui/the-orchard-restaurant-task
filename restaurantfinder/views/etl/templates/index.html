@@ -1,9 +1,60 @@
 {% extends 'base.html' %}
 
-{% block body_class %}center-maincontent{% endblock %}
-
 {% block content %}
-  <h1><a href="/etl/start">Start the ETL job</a></h1>
-  <br />
-  <h1><a href="/etl/cleanup">Reset datastore</a></h1>
+  <div class="container">
+    <div class="row etl-cards">
+      <div class="col-sm-4">
+        <div class="card" style="width: 20rem;">
+          <div class="card-block">
+            <h4 class="card-title">ETL job</h4>
+            <p class="card-text">
+              This is the ETL job that reads the CSV file line by line from a bucket
+              on Google Cloud Storage. The pipeline uses only a mapper and fans out
+              operation for each CSV row.
+              Once started, this will redirect to the Pipeline view.
+            </p>
+            <a href="/etl/start" class="btn btn-primary">run</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-4">
+        <div class="card" style="width: 20rem;">
+          <div class="card-block">
+            <h4 class="card-title">Geocoder Job</h4>
+            <p class="card-text">
+              This job is optional. It could have been integrated into the
+              main pipeline, but due to quota limitations on my Google Maps API Key
+              I elected to make this optional for the extra bonus.
+            </p>
+            <a href="/etl/geocode" class="btn btn-primary">run</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-sm-4">
+        <div class="card" style="width: 20rem;">
+          <div class="card-block">
+            <h4 class="card-title">Clear Datastore</h4>
+            <p class="card-text">
+              Utility job for clearing the datastore
+            </p>
+            <a href="/etl/cleanup" class="btn btn-primary">run</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+      <p class="lead">When the ETL is running, it will display the Pipeline view.
+        Once the mapper is completed (green), revisit the homepage which will then display the results.
+      </p>
+      <p class="lead">When no data is in the datastore, the homepage will redirect here prompting the user
+        to run the ETL job and populate the datastore
+      </p>
+    </div>
+  </div>
 {% endblock %}

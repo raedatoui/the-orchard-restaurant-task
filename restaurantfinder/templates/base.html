@@ -6,31 +6,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}The Orchard | Restaurant Task{% endblock %}</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <link type="text/css" rel="stylesheet" href="/static/css/app.css">
 </head>
 
-<body class="{% block body_class %}{% endblock %}">
-    <div class="wrapper">
-        <section class="main-header">
-            <h2>The Orchard | Restaurant Finder</h2>
-        </section>
+<body>
 
-        <div id="app" class="main-container">
-            <div class="navigation-container">
-                <nav class="main-navigation">
-                    <ul class="navigation-group">
-                        <li class="navigation-group-item"><a href="/" class="navigation-link active">Dataviz</a></li>
-                        <li class="navigation-group-item"><a href="/etl" class="navigation-link">ETL</a></li>
-                    </ul>
-                </nav>
-            </div>
-
-            <main class="main-content" role="main">
-                {% block content %} {% endblock %}
-            </main>
-        </div>
+  <div class="container">
+    <div class="masthead">
+      <h1 class="muted">The Orchard | Restaurant Finder</h1>
     </div>
+  </div>
 
-    {% block script %} {% endblock %}
+  <div class="container main-navbar">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link {{ 'active' if nav == 'dataviz' }}" href="/">Dataviz</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ 'active' if nav == 'etl' }}" href="/etl">ETL</a>
+      </li>
+    </ul>
+  </div>
+
+
+  {% block content %} {% endblock %}
+
+
+  {% block script %} {% endblock %}
 </body>
 </html>

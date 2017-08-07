@@ -18,24 +18,33 @@ def create_restaurant(csv_row):
     # do process with csv row
     row = csv_parser.parse_line(csv_row[1])
 
-    # filter by cuisine. we filter the restaurant data right away instead
+    # take advantage of the mapper step and filter out restaurants
+    # based on desired criteria:
+    # 1- cuisine is Thai
+    # 2- no less than a B or a score of 27 or higher
+    # 3- no graded restaurants will be skipped
+
+    # we filter the restaurant data right away instead
     # creating a large database of all restaurants
     # we do this because we want to use the geocoding service which is heavily
     # rate limited in free mode.
-    # essentially, lets just filter and create models for Thai restaurants
+
     if str(row[models.CUISINE_FIELD]).lower() == "thai":
-        model_rpc = models.Restaurant.create_from_row(row)
-        geo_rpc = geocoding_service.get_coords_from_address(row)
         try:
-            result = model_rpc.get_result()
-            address, lat_lng = geocoding_service.get_result(geo_rpc)
-            m = result.get()
-            m.address = address
-            m.lat = float(lat_lng['lat'])
-            m.lng = float(lat_lng['lng'])
-            m.put()
+            score = int(row["SCORE"])
+            if score <= 27:
+                models.Restaurant.create_from_row(row)
         except Exception:
-            raise
+            log.info("skipped restaurant without a score")
+
+
+def geocode_restaurant(entity):
+    geo_rpc = geocoding_service.get_coords_from_address(entity)
+    address, lat_lng = geocoding_service.get_result(geo_rpc)
+    entity.address = address
+    entity.lat = float(lat_lng['lat'])
+    entity.lng = float(lat_lng['lng'])
+    entity.put()
     return
 
 
@@ -68,7 +77,20 @@ class ExtractPipeline(base_handler.PipelineBase):
                     "file_paths": [file_path]
                 }
             },
-            shards=20
+            shards=50
+        )
+
+
+class GeocoderPipeline(base_handler.PipelineBase):
+    def run(self):
+        yield mapreduce_pipeline.MapPipeline(
+            "geocoder",
+            "restaurantfinder.etl.geocode_restaurant",
+            "mapreduce.input_readers.DatastoreInputReader",
+            params={
+                "entity_kind": "restaurantfinder.models.Restaurant"
+            },
+            shards=2
         )
 
 
@@ -119,13 +141,27 @@ class Extractor(ndb.Model):
         return pipeline.class_path == "restaurantfinder.etl.ExtractPipeline" \
                and pipeline.has_finalized
 
+    @classmethod
+    def has_geo(cls):
+        pipeline = cls.get()
+        if not pipeline:
+            return False
+        return pipeline.class_path == "restaurantfinder.etl.GeocoderPipeline" \
+               and pipeline.has_finalized
+
+
+def geocode_restaurant_data():
+    job = GeocoderPipeline()
+    job.start()
+    Extractor.set(job)
+    return job
+
 
 def load_restaurant_data(filename):
-    with app.app_context():
-        job = ExtractPipeline(filename)
-        job.start()
-        Extractor.set(job)
-        return job
+    job = ExtractPipeline(filename)
+    job.start()
+    Extractor.set(job)
+    return job
 
 
 def clear_restaurant_data():

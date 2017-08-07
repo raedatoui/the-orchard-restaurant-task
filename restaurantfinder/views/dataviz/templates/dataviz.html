@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 
-{% block body_class %}center-maincontent{% endblock %}
-
 {% block content %}
- we have data!
+    <div class="container">
+      <ul id="restaurants">
+      {% for restaurant in restaurants %}
+          <li>{{ restaurant.name }}</li>
+      {% endfor %}
+      </ul>
+    </div>
 {% endblock %}

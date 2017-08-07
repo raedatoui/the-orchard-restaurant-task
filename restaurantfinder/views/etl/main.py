@@ -12,37 +12,53 @@ from restaurantfinder.utils import gcs
 def index():
     if etl.Extractor.is_working():
         job = etl.Extractor.get()
-        return redirect(job.base_path + "/status?root=" + job.pipeline_id)
+        return render_template(
+            "monitor.html", nav="etl",
+            monitor=job.base_path + "/status?root=" + job.pipeline_id
+        )
     else:
-        return render_template("index.html")
+        return render_template("index.html", nav="etl")
 
 
 @etl_view.route("/start", methods=['GET'])
 def etl_start():
-    extractor = etl.load_restaurant_data(app.config['RESTAURANTS_CSV'])
-    return redirect(
-        extractor.base_path + "/status?root=" + extractor.pipeline_id)
+    filename = app.config['RESTAURANTS_CSV']
 
+    # when working locally, we need to store the CSV file
+    # into the local cloud storage.
+    if app.config['IS_DEVAPPSERVER']:
+        # filename = "local.csv"
+        static = os.path.join(os.path.dirname(__file__), '../..', 'static')
+        filepath = os.path.join(static, filename)
 
-@etl_view.route('/local', methods=['GET'])
-def etl_start_local():
-    filename = "local.csv"
-    static = os.path.join(os.path.dirname(__file__), '../..', 'static')
-    filepath = os.path.join(static, filename)
-
-    with open(filepath) as f:
-        loaded = f.read()
-        gcs.write(filename=filename, content_type="text/csv", data=loaded)
+        with open(filepath) as f:
+            loaded = f.read()
+            gcs.write(filename=filename, content_type="text/csv", data=loaded)
 
     extractor = etl.load_restaurant_data(filename)
-    return redirect(
-        extractor.base_path + "/status?root=" + extractor.pipeline_id)
+
+    return render_template(
+        "monitor.html", nav="etl",
+        monitor=extractor.base_path + "/status?root=" + extractor.pipeline_id
+    )
+
+
+@etl_view.route('/geocode', methods=['GET'])
+def geocode():
+    extractor = etl.geocode_restaurant_data()
+    return render_template(
+        "monitor.html", nav="etl",
+        monitor=extractor.base_path + "/status?root=" + extractor.pipeline_id
+    )
 
 
 @etl_view.route('/cleanup', methods=['GET'])
 def cleanup():
     cleaner = etl.clear_restaurant_data()
-    return redirect(cleaner.base_path + "/status?root=" + cleaner.pipeline_id)
+    return render_template(
+        "monitor.html", nav="etl",
+        monitor=cleaner.base_path + "/status?root=" + cleaner.pipeline_id
+    )
 
 
 @etl_view.route('/cleanup', methods=['POST'])
