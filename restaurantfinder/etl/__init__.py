@@ -7,29 +7,35 @@ from flask import current_app as app
 from google.appengine.ext import ndb
 from mapreduce import base_handler
 from mapreduce import mapreduce_pipeline
-
 from restaurantfinder import models
 from restaurantfinder.utils import csv_parser, gcs, geocoding_service
-
+import time
 log = logging.getLogger(__name__)
 
 
 def create_restaurant(csv_row):
     # do process with csv row
     row = csv_parser.parse_line(csv_row[1])
-    model_rpc = models.Restaurant.create_from_row(row)
-    geo_rpc = geocoding_service.get_coords_from_address(row)
-    try:
-        result = model_rpc.get_result()
-        address, lat_lng = geocoding_service.get_result(geo_rpc)
-        m = result.get()
-        m.address = address
-        m.lat = float(lat_lng['lat'])
-        m.lng = float(lat_lng['lng'])
-        m.put()
-    except Exception:
-        raise
+
+    # filter by cuisine. we filter the restaurant data right away instead
+    # creating a large database of all restaurants
+    # we do this because we want to use the geocoding service which is heavily
+    # rate limited in free mode.
+    # essentially, lets just filter and create models for Thai restaurants
+    if str(row[models.CUISINE_FIELD]).lower() == "thai":
+        model_rpc = models.Restaurant.create_from_row(row)
+        #geo_rpc = geocoding_service.get_coords_from_address(row)
+        try:
+            #address, lat_lng = geocoding_service.get_result(geo_rpc)
+            model_rpc.get_result()
+            # m.address = address
+            # m.lat = float(lat_lng['lat'])
+            # m.lng = float(lat_lng['lng'])
+            # m.put()
+        except Exception:
+            raise
     return
+
 
 def delete_restaurant(entity):
     return entity.key.delete()
@@ -42,7 +48,9 @@ class ResetPipeline(base_handler.PipelineBase):
             handler_spec="restaurantfinder.etl.delete_restaurant",
             input_reader_spec="mapreduce.input_readers.DatastoreInputReader",
             params={
-                "entity_kind": "restaurantfinder.models.Restaurant"
+                "entity_kind": "restaurantfinder.models.Restaurant",
+                "done_callback": "/etl/cleanup",
+                "done_callback_method": "POST"
             },
             shards=50
         )
@@ -62,7 +70,7 @@ class ExtractPipeline(base_handler.PipelineBase):
                 "done_callback": "/etl/",
                 "done_callback_method": "POST"
             },
-            shards=50
+            shards=25
         )
 
 
@@ -94,8 +102,7 @@ class Extractor(ndb.Model):
     @classmethod
     def clear(cls):
         job = cls.get()
-        job.running = False
-        job.put()
+        job.key.delete()
 
     @classmethod
     def is_working(cls):
