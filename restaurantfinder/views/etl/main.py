@@ -19,7 +19,10 @@ def index():
 
 @etl_view.route('/', methods=['POST'])
 def etl_done():
-    etl.Extractor.clear()
+    job = etl.Extractor.get()
+    job.running = False
+    job.has_data = True
+    job.put()
     return "ok"
 
 

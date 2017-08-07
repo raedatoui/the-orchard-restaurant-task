@@ -3,3 +3,4 @@ class Config(object):
     DEBUG = True
     TESTING = False
     RESTAURANTS_CSV = "DOHMH_New_York_City_Restaurant_Inspection_Results.csv"
+    MAPS_API_KEY = "AIzaSyCf_98nh6p0zMPbOQ3L7fDfjmPnPWoZDog"

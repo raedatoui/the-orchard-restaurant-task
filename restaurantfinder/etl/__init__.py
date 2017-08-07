@@ -9,16 +9,27 @@ from mapreduce import base_handler
 from mapreduce import mapreduce_pipeline
 
 from restaurantfinder import models
-from restaurantfinder.utils import gcs
+from restaurantfinder.utils import csv_parser, gcs, geocoding_service
 
 log = logging.getLogger(__name__)
 
 
-def create_restaurant(row):
+def create_restaurant(csv_row):
     # do process with csv row
-    models.Restaurant.create_from_row(row)
+    row = csv_parser.parse_line(csv_row[1])
+    model_rpc = models.Restaurant.create_from_row(row)
+    geo_rpc = geocoding_service.get_coords_from_address(row)
+    try:
+        result = model_rpc.get_result()
+        address, lat_lng = geocoding_service.get_result(geo_rpc)
+        m = result.get()
+        m.address = address
+        m.lat = float(lat_lng['lat'])
+        m.lng = float(lat_lng['lng'])
+        m.put()
+    except Exception:
+        raise
     return
-
 
 def delete_restaurant(entity):
     return entity.key.delete()
@@ -59,6 +70,7 @@ class Extractor(ndb.Model):
     pipeline_id = ndb.StringProperty()
     base_path = ndb.StringProperty()
     running = ndb.BooleanProperty()
+    has_data = ndb.BooleanProperty()
 
     @classmethod
     def get(cls):
@@ -74,6 +86,7 @@ class Extractor(ndb.Model):
         if not job:
             job = cls()
         job.running = True
+        job.has_data = False
         job.base_path = pipeline.base_path
         job.pipeline_id = pipeline.pipeline_id
         job.put()
@@ -90,6 +103,13 @@ class Extractor(ndb.Model):
         if not job:
             return False
         return job.running
+
+    @classmethod
+    def has_data(cls):
+        job = cls.get()
+        if not job:
+            return False
+        return job.has_data
 
 
 def load_restaurant_data(filename):

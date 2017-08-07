@@ -20,13 +20,13 @@ def _factory(partial_module_string, url_prefix):
     """
     name = partial_module_string
     import_name = 'restaurantfinder.views.{}'.format(partial_module_string)
+    print import_name
     template_folder = 'templates'
     blueprint = Blueprint(name, import_name, template_folder=template_folder,
                           url_prefix=url_prefix)
     return blueprint
 
-dataviz = _factory('dataviz.main', '/')
 etl = _factory('etl.main', '/etl')
-
+dataviz = _factory('dataviz.main', '/')
 
 all_blueprints = (dataviz, etl)
