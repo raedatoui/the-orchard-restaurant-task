@@ -7,9 +7,10 @@ from flask import current_app as app
 from google.appengine.ext import ndb
 from mapreduce import base_handler
 from mapreduce import mapreduce_pipeline
+
 from restaurantfinder import models
 from restaurantfinder.utils import csv_parser, gcs, geocoding_service
-import time
+
 log = logging.getLogger(__name__)
 
 
@@ -24,10 +25,11 @@ def create_restaurant(csv_row):
     # essentially, lets just filter and create models for Thai restaurants
     if str(row[models.CUISINE_FIELD]).lower() == "thai":
         model_rpc = models.Restaurant.create_from_row(row)
-        #geo_rpc = geocoding_service.get_coords_from_address(row)
+        # geo_rpc = geocoding_service.get_coords_from_address(row)
         try:
-            #address, lat_lng = geocoding_service.get_result(geo_rpc)
-            model_rpc.get_result()
+            result = model_rpc.get_result()
+            # address, lat_lng = geocoding_service.get_result(geo_rpc)
+            # m = result.get()
             # m.address = address
             # m.lat = float(lat_lng['lat'])
             # m.lng = float(lat_lng['lng'])
@@ -70,7 +72,7 @@ class ExtractPipeline(base_handler.PipelineBase):
                 "done_callback": "/etl/",
                 "done_callback_method": "POST"
             },
-            shards=25
+            shards=20
         )
 
 

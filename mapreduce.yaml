@@ -10,7 +10,7 @@ mapreduce:
     - name: file_paths
       value: "local.csv"
     - name: shard_count
-      default: 50
+      default: 40
 
 - name: Reset Datastore
   params:
