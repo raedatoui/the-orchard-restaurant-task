@@ -27,6 +27,16 @@ class Restaurant(ndb.Model):
     record_date = ndb.DateProperty()
     inspection_type = ndb.StringProperty()
 
+    def to_dict(self, include=None, exclude=None):
+        result = super(Restaurant, self).to_dict(include=include, exclude=exclude)
+        for d in ['inspection_date', 'grade_date', 'record_date']:
+            v = getattr(self, d)
+            if v is not None:
+                result[d] = v.strftime('%m/%d/%y')
+            else:
+                result[d] = None
+
+        return result
 
     @staticmethod
     def is_critical(v):
@@ -63,12 +73,12 @@ class Restaurant(ndb.Model):
             cuisine=row["CUISINE DESCRIPTION"],
             inspection_date=cls.get_date(row["INSPECTION DATE"]),
             action=row["ACTION"],
-#            violation_code=row["VIOLATION CODE"],
-            violation_description=row["VIOLATION DESCRIPTION"],
+            # violation_code=row["VIOLATION CODE"],
+            # violation_description=row["VIOLATION DESCRIPTION"],
             critical_flag=cls.is_critical(row["CRITICAL FLAG"]),
             score=cls.get_int(row["SCORE"]),
             grade=row["GRADE"],
             grade_date=cls.get_date(row["GRADE DATE"]),
             record_date=cls.get_date(row["RECORD DATE"]),
-            inspection_type=row["INSPECTION TYPE"]
+            # inspection_type=row["INSPECTION TYPE"]
         ).put_async()

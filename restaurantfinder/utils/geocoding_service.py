@@ -28,7 +28,6 @@ def get_result(rpc):
     try:
         result = rpc.get_result()
         if result.status_code == 200:
-            print result.content
             result = json.loads(result.content)['results'][0]
             return result['formatted_address'], result['geometry']['location']
     except urlfetch.DownloadError:

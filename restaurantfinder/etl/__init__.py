@@ -25,15 +25,15 @@ def create_restaurant(csv_row):
     # essentially, lets just filter and create models for Thai restaurants
     if str(row[models.CUISINE_FIELD]).lower() == "thai":
         model_rpc = models.Restaurant.create_from_row(row)
-        # geo_rpc = geocoding_service.get_coords_from_address(row)
+        geo_rpc = geocoding_service.get_coords_from_address(row)
         try:
             result = model_rpc.get_result()
-            # address, lat_lng = geocoding_service.get_result(geo_rpc)
-            # m = result.get()
-            # m.address = address
-            # m.lat = float(lat_lng['lat'])
-            # m.lng = float(lat_lng['lng'])
-            # m.put()
+            address, lat_lng = geocoding_service.get_result(geo_rpc)
+            m = result.get()
+            m.address = address
+            m.lat = float(lat_lng['lat'])
+            m.lng = float(lat_lng['lng'])
+            m.put()
         except Exception:
             raise
     return
@@ -46,13 +46,11 @@ def delete_restaurant(entity):
 class ResetPipeline(base_handler.PipelineBase):
     def run(self):
         yield mapreduce_pipeline.MapperPipeline(
-            "Reset Datastore",
+            "reset",
             handler_spec="restaurantfinder.etl.delete_restaurant",
             input_reader_spec="mapreduce.input_readers.DatastoreInputReader",
             params={
-                "entity_kind": "restaurantfinder.models.Restaurant",
-                "done_callback": "/etl/cleanup",
-                "done_callback_method": "POST"
+                "entity_kind": "restaurantfinder.models.Restaurant"
             },
             shards=50
         )
@@ -62,15 +60,13 @@ class ExtractPipeline(base_handler.PipelineBase):
     def run(self, filename):
         file_path = gcs.abs_filename(filename)
         yield mapreduce_pipeline.MapPipeline(
-            "Populate Datastore",
+            "extract",
             "restaurantfinder.etl.create_restaurant",
             "restaurantfinder.utils.gcs_reader.GoogleStorageLineInputReader",
             params={
                 "input_reader": {
                     "file_paths": [file_path]
-                },
-                "done_callback": "/etl/",
-                "done_callback_method": "POST"
+                }
             },
             shards=20
         )
@@ -79,46 +75,49 @@ class ExtractPipeline(base_handler.PipelineBase):
 class Extractor(ndb.Model):
     pipeline_id = ndb.StringProperty()
     base_path = ndb.StringProperty()
-    running = ndb.BooleanProperty()
-    has_data = ndb.BooleanProperty()
 
     @classmethod
     def get(cls):
         r = cls.query().fetch()
         if len(r) == 0:
             return None
-        return r[0]
+        job = r[0]
+        return mapreduce_pipeline.MapreducePipeline.from_id(job.pipeline_id)
 
     @classmethod
     def set(cls, pipeline):
         log.info("updating current job{}".format(pipeline.pipeline_id))
-        job = cls.get()
-        if not job:
+        r = cls.query().fetch()
+        if len(r) == 0:
             job = cls()
-        job.running = True
-        job.has_data = False
+        else:
+            job = r[0]
         job.base_path = pipeline.base_path
         job.pipeline_id = pipeline.pipeline_id
         job.put()
 
     @classmethod
     def clear(cls):
-        job = cls.get()
+        r = cls.query().fetch()
+        if len(r) == 0:
+            return None
+        job = r[0]
         job.key.delete()
 
     @classmethod
     def is_working(cls):
-        job = cls.get()
-        if not job:
+        pipeline = cls.get()
+        if not pipeline:
             return False
-        return job.running
+        return not pipeline.has_finalized
 
     @classmethod
     def has_data(cls):
-        job = cls.get()
-        if not job:
+        pipeline = cls.get()
+        if not pipeline:
             return False
-        return job.has_data
+        return pipeline.class_path == "restaurantfinder.etl.ExtractPipeline" \
+               and pipeline.has_finalized
 
 
 def load_restaurant_data(filename):

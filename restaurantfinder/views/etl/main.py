@@ -17,15 +17,6 @@ def index():
         return render_template("index.html")
 
 
-@etl_view.route('/', methods=['POST'])
-def etl_done():
-    job = etl.Extractor.get()
-    job.running = False
-    job.has_data = True
-    job.put()
-    return "ok"
-
-
 @etl_view.route("/start", methods=['GET'])
 def etl_start():
     extractor = etl.load_restaurant_data(app.config['RESTAURANTS_CSV'])
@@ -57,4 +48,4 @@ def cleanup():
 @etl_view.route('/cleanup', methods=['POST'])
 def cleanup_done():
     etl.Extractor.clear()
-    return "ok"
+    return ""
