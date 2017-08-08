@@ -18,8 +18,23 @@ indexes:
   - name: name
   - name: recent_grade
   - name: total_a
-  - name: total_critical_a
+  - name: total_critical
   - name: total_grades
+
+- kind: Restaurant
+  properties:
+  - name: average_score
+  - name: total_grades
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: average_score
+
+- kind: Restaurant
+  properties:
+  - name: total_grades
+  - name: average_score
 
 - kind: _AE_Pipeline_Record
   properties:

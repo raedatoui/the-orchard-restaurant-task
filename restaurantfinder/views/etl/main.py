@@ -28,7 +28,7 @@ def etl_start():
     # when working locally, we need to store the CSV file
     # into the local cloud storage.
     if app.config['IS_DEVAPPSERVER']:
-        # filename = "local.csv"
+        filename = "small.csv"
         static = os.path.join(os.path.dirname(__file__), '../..', 'static')
         filepath = os.path.join(static, filename)
 

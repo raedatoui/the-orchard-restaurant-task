@@ -27,7 +27,7 @@ def create_restaurant(csv_row):
 
     if str(row[models.CUISINE_FIELD]).lower() == "thai":
         try:
-            models.Restaurant.create_from_row(row)
+            models.create_from_row(row)
         except Exception:
             log.info("skipped restaurant without a score")
             raise
@@ -44,6 +44,7 @@ def geocode_restaurant(entity):
 
 
 def delete_restaurant(entity):
+    ndb.delete_multi(entity.inspection_keys)
     return entity.key.delete()
 
 

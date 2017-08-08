@@ -2,16 +2,26 @@
 
 {% block content %}
   <div class="container">
+
     <div class="row">
-      <ul class="nav nav-list">
+        <ul class="nav nav-list">
         <li class="nav-item previous {% if not pager.has_prev %}disabled{% endif %}">
-            <a class="nav-link previous-hook" page="{{ pager.prev_page }}" href="/?page={{ pager.prev_page }}"><span aria-hidden="true">&larr;</span> Previous</a>
+            <a class="nav-link previous-hook" page="{{ pager.prev_page }}" href="/{{ pager.path }}?page={{ pager.prev_page }}">
+              <span aria-hidden="true">&larr;</span> Previous</a>
         </li>
         <li class="nav-item next {% if not pager.has_next %}disabled{% endif %}">
-            <a class="nav-link next-hook" page="{{ pager.next_page }}"href="/?page={{ pager.next_page }}">Next <span aria-hidden="true">&rarr;</span></a>
+            <a class="nav-link next-hook" page="{{ pager.next_page }}" href="/{{ pager.path}}?page={{ pager.next_page }}">Next
+              <span aria-hidden="true">&rarr;</span></a>
         </li>
       </ul>
     </div>
+
+    {% if msg %}
+    <div class="row">
+      <h3>{{ msg }}</h3>
+    </div>
+    {% endif %}
+
     <div class="row">
       <table class="table table-bordered">
       <thead class="thead-inverse">
@@ -19,9 +29,10 @@
           <th>#</th>
           <th>Name</th>
           <th>Total # of A</th>
-          <th>Total # of Cirtical A</th>
+          <th>Total # of Critical</th>
           <th>Average Score</th>
           <th>Latest Grade</th>
+          <th>All Grades</th>
           <th>Address</th>
         </tr>
       </thead>
@@ -31,9 +42,10 @@
           <th scope="row">{{ loop.index + 20 * (pager.page - 1) }}</th>
           <td><a href="/{{ restaurant.key.id() }}">{{ restaurant.name }}</a></td>
           <td>{{ restaurant.total_a }} / {{ restaurant.total_grades }}</td>
-          <td>{{ restaurant.total_critical_a }} / {{ restaurant.total_grades }}</td>
+          <td>{{ restaurant.total_critical }}</td>
           <td>{{ restaurant.average_score }}</td>
           <td>{{ restaurant.recent_grade }}</td>
+          <td>{{ restaurant.total_grades}}</td>
           <td>{{ restaurant.address }}</td>
         </tr>
       {%  endfor %}

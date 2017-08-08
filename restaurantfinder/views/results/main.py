@@ -23,19 +23,20 @@ def index():
         return redirect("/etl")
 
 
-@results_view.route('/top', methods=['GET'])
-def top():
+@results_view.route('top/<criteria>', methods=['GET'])
+def top(criteria):
     if etl.Extractor.has_data():
         try:
             page = int(request.args.get('page'))
         except Exception:
             page = 1
 
-        restaurants, pager = models.Restaurant.get_page(page)
+        restaurants, msg, pager = models.Restaurant.find_by_criteria(criteria, page)
 
         return render_template("list.html",
-                               nav="results",
+                               nav="top",
                                pager=pager,
+                               msg=msg,
                                restaurants=restaurants)
     else:
         return redirect("/etl")
