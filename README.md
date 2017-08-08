@@ -41,7 +41,7 @@ AppEngine provides a lot of useful librairies
 
 ### ETL
 
-![ETL](ETL.jpg)
+![ETL](ETL.png)
 
 
 

@@ -12,9 +12,35 @@
     <div class="row">
       <p>Tel: {{ restaurant.phone }}</p>
     </div>
+    <div class="row">
+      <h3>Summary</h3>
+      <table class="table table-bordered">
+        <thead class="thead-inverse">
+          <tr>
+            <th>Summary</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Average Score</td>
+            <td>{{ restaurant.average_score }}</td>
+          </tr>
+          <tr>
+            <td>Total # A</td>
+            <td>{{ restaurant.total_a }}</td>
+          </tr>
+          <tr>
+            <td>Latest Critical Count</td>
+            <td>{{ restaurant.recent_critical_count }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <h2>Inspections</h2>
-    <table class="table table-bordered">
+    <div class="row">
+      <h3>Inspections</h3>
+      <table class="table table-bordered">
       <thead class="thead-inverse">
         <tr>
           <th>#</th>
@@ -40,5 +66,6 @@
       {%  endfor %}
       </tbody>
     </table>
+    </div>
   </div>
 {% endblock %}

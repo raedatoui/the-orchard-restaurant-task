@@ -28,25 +28,29 @@
         <tr>
           <th>#</th>
           <th>Name</th>
-          <th>Total # of A</th>
-          <th>Total # of Critical</th>
-          <th>Average Score</th>
           <th>Latest Grade</th>
+          <th>Recent # of Critical</th>
+          <th>Recent Average Score</th>
+          <th>Total # of A</th>
           <th>All Grades</th>
-          <th>Address</th>
+           <th>Ratio of A / Total Grades</th>
+          <th>Average Score</th>
+          <th>Total # of Critical</th>
         </tr>
       </thead>
       <tbody>
       {% for restaurant in restaurants %}
         <tr>
-          <th scope="row">{{ loop.index + 20 * (pager.page - 1) }}</th>
+          <th scope="row">{{ loop.index + pager.page_size * (pager.page - 1) }}</th>
           <td><a href="/{{ restaurant.key.id() }}">{{ restaurant.name }}</a></td>
-          <td>{{ restaurant.total_a }} / {{ restaurant.total_grades }}</td>
-          <td>{{ restaurant.total_critical }}</td>
-          <td>{{ restaurant.average_score }}</td>
           <td>{{ restaurant.recent_grade }}</td>
+          <td>{{ restaurant.recent_critical_count }}</td>
+          <td>{{ restaurant.recent_average_score }}</td>
+          <td>{{ restaurant.total_a }}</td>
           <td>{{ restaurant.total_grades}}</td>
-          <td>{{ restaurant.address }}</td>
+          <td>{{ restaurant.ratio }}</td>
+          <td>{{ restaurant.average_score }}</td>
+          <td>{{ restaurant.total_critical }}</td>
         </tr>
       {%  endfor %}
       </tbody>

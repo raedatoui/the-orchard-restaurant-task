@@ -28,12 +28,140 @@ indexes:
 
 - kind: Restaurant
   properties:
+  - name: ratio
+    direction: desc
+  - name: total_a
+    direction: desc
+
+- kind: Restaurant
+  properties:
   - name: recent_grade
   - name: average_score
 
 - kind: Restaurant
   properties:
+  - name: recent_grade
+  - name: average_score
+  - name: total_a
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: average_score
+  - name: total_a
+    direction: desc
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: recent_critical_count
+  - name: average_score
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: recent_critical_count
+  - name: recent_average_score
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: recent_critical_count
+  - name: total_a
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: recent_critical_count
+  - name: total_a
+    direction: desc
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: recent_grade_date
+  - name: recent_critical_count
+  - name: recent_average_score
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: recent_grade_date
+    direction: desc
+  - name: recent_critical_count
+  - name: recent_average_score
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_a
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_a
+  - name: average_score
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_a
+  - name: total_critical
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_a
+    direction: desc
+  - name: average_score
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_a
+    direction: desc
+  - name: average_score
+  - name: total_critical
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_a
+    direction: desc
+  - name: total_critical
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_critical
+
+- kind: Restaurant
+  properties:
+  - name: recent_grade
+  - name: total_critical
+  - name: average_score
+
+- kind: Restaurant
+  properties:
+  - name: total_a
+    direction: desc
+  - name: average_score
+
+- kind: Restaurant
+  properties:
+  - name: total_a
+    direction: desc
+  - name: total_critical
+
+- kind: Restaurant
+  properties:
   - name: total_grades
+  - name: average_score
+
+- kind: Restaurant
+  properties:
+  - name: total_grades
+    direction: desc
   - name: average_score
 
 - kind: _AE_Pipeline_Record

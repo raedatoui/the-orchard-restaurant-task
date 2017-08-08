@@ -23,9 +23,13 @@
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle {{ 'active' if nav == 'top' }}" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Top Rated</a>
           <div class="dropdown-menu">
-              <a class="dropdown-item" href="/top/score">By Score</a>
+              <a class="dropdown-item" href="/top/best">Best Answer</a>
+              <a class="dropdown-item" href="/top/best2">2nd Best Answer</a>
+              <a class="dropdown-item" href="/top/score">Lowest Score</a>
               <a class="dropdown-item" href="/top/grade">Total # A</a>
+              <a class="dropdown-item" href="/top/ratio">Ratio of A / Total Grades</a>
               <a class="dropdown-item" href="/top/critical">Total # A, least critical</a>
+              <a class="dropdown-item" href="/top/scorecount">Total # A, lowest score</a>
               <a class="dropdown-item" href="/top/recent">Latest Grade A, lowest score</a>
           </div>
       </li>
@@ -47,6 +51,6 @@
 
   <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
   <script src="/static/js/bootstrap.min.js"></script>
-
+  {% block script %} {% endblock %}
 </body>
 </html>
