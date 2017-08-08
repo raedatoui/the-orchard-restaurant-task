@@ -49,6 +49,8 @@ This figure shows the Pipeline process. The CSV is sharded and read one row at a
 
 Given that I am using the Maps Geocoding API, which is fairly limited for a free account, I decided to filter out Thai restaurants and opt out of modeling the entire CSV into datastore.
 
+In order to see the ETL job in action, I recommend running the reset datastore job first, and then run the ETL job to populate the datastore.
+
 
 
 ### Schema
@@ -64,4 +66,7 @@ A single restaurant has many inspections. With the help of computed properties t
 ### Top Rated
 
 There is more than one way to answer this question qualititavely.
-With computed properties, I made a bunch of criteria to filter the restaurants by also visualized them on a map using the geo data
+With computed properties, I made a bunch of criteria to filter the restaurants and also visualized them on a map using the geo data. If I had a bit more time, I would explored heat maps and various representations of Thai restaurants.
+
+I didnt even consider the restaurants with a B grade due to the large nuimber of restaurants with A grade.
+The queries would have been trivial to update.
