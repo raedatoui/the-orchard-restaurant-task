@@ -40,6 +40,7 @@
       <li class="nav-item">
         <a class="nav-link {{ 'active' if nav == 'dataviz' }}" href="/dataviz">Dataviz</a>
       </li>
+
       <li class="nav-item">
         <a class="nav-link {{ 'active' if nav == 'etl' }}" href="/etl">ETL</a>
       </li>
@@ -49,7 +50,7 @@
 
   {% block content %} {% endblock %}
 
-  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" crossorigin="anonymous"></script>
   <script src="/static/js/bootstrap.min.js"></script>
   {% block script %} {% endblock %}
 </body>

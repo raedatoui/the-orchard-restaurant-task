@@ -2,40 +2,102 @@
 
 
 {% block content %}
-  <div id="map"></div>
+<hr />
+<div class="container">
+    <div class="row" >
+        <ul class="nav nav-pills" id="viz-select">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {{ 'active' if nav == 'dataviz' }}" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Geo</a>
+              <div class="dropdown-menu">
+                  <a class="dropdown-item" data-src="/top/best">Best Answer</a>
+                  <a class="dropdown-item" data-src="/top/best2">2nd Best Answer</a>
+                  <a class="dropdown-item" data-src="/top/score">Lowest Score</a>
+                  <a class="dropdown-item" data-src="/top/grade">Total # A</a>
+                  <a class="dropdown-item" data-src="/top/ratio">Ratio of A / Total Grades</a>
+                  <a class="dropdown-item" data-src="/top/critical">Total # A, least critical</a>
+                  <a class="dropdown-item" data-src="/top/scorecount">Total # A, lowest score</a>
+                  <a class="dropdown-item" data-src="/top/recent">Latest Grade A, lowest score</a>
+              </div>
+          </li>
+        </ul>
+    </div>
+    <div class="row" >
+      <h3 id="msg">{{ msg }}</h3>
+   </div>
+</div>
+<div id="map"></div>
 {% endblock %}
 
 
 {% block script %}
     <script>
       var map;
+      var markers = [];
+      var infowindows = [];
+
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 12,
           center: {lat: 40.730610, lng: -73.935242},
           mapTypeId: 'terrain'
         });
-
-        $.getJSON( "/dataviz/top/best.json", function( data ) {
-            console.log(data);
-        });
-
-        // Create a <script> tag and set the USGS URL as the source.
-        var script = document.createElement('script');
-
-        // This example uses a local copy of the GeoJSON stored at
-        // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
-        script.src = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
-        document.getElementsByTagName('head')[0].appendChild(script);
-
         map.data.setStyle(function(feature) {
           var magnitude = feature.getProperty('mag');
           return {
             icon: getCircle(magnitude)
           };
         });
-      }
 
+        $(document).ready(function() {
+            $("#viz-select .dropdown-item").click(function(e){
+                var src = "/dataviz" + $(e.target).attr("data-src") + ".json";
+                for(var i=0; i < markers.length; i++){
+                    markers[i].setMap(null);
+                }
+                markers = new Array();
+                loadData(src);
+            });
+            loadData("/dataviz/top/best.json");
+        });
+
+      }
+      function loadData(src) {
+          $.getJSON(src, function (data) {
+                $("#msg").text(data.msg);
+                var restaurants = data.restaurants;
+                for(var i =0; i < restaurants.length; i++) {
+                    var contentString =  '<div class="container"><div class="row"><h2><a href="/' + restaurants[i].id + '"></a>' + restaurants[i].name +'</a></h2></div>';
+                    contentString += '<div class="row"><p class="lead">' + restaurants[i].address + '</p></div>';
+                    contentString += '<div class="row"><p class="lead">Tel:' + restaurants[i].phone + '</p></div>';
+                    contentString += '<div class="row"><h3>Summary</h3>';
+                    contentString +=  '<table class="table table-bordered"><thead class="thead-inverse">' +
+                        '<tr><th>Summary</th><th>Value</th></tr></thead><tbody>';
+                    contentString +=  '<tr><td>Current Grade</td><td>'+ restaurants[i].recentGrade +'</td></tr>';
+                    contentString +=  '<tr><td>Grade Date</td><td>'+ restaurants[i].recentGradeDate +'</td></tr>';
+                    contentString +=  '<tr><td>Recent Score</td><td>'+ restaurants[i].recentScore +'</td></tr>';
+                    contentString +=  '<tr><td>Recent Critical Count</td><td>'+ restaurants[i].recentCritical +'</td></tr>';
+                    contentString +=   '</tbody></table>';
+
+
+                    infowindows[i] = new google.maps.InfoWindow({
+                        content: contentString
+                    });
+
+                    markers[i] = new google.maps.Marker({
+                        animation: google.maps.Animation.DROP,
+                        position: {lat: restaurants[i].lat, lng: restaurants[i].lng},
+                        title: restaurants[i].name,
+                        map: map
+                    });
+                    markers[i].index = i;
+                    google.maps.event.addListener(markers[i], 'click', function () {
+                        infowindows[this.index].open(map,markers[this.index]);
+                        map.panTo(markers[this.index].getPosition());
+                    });
+                }
+
+            });
+      }
       function getCircle(magnitude) {
         return {
           path: google.maps.SymbolPath.CIRCLE,
@@ -47,9 +109,7 @@
         };
       }
 
-      function eqfeed_callback(results) {
-        map.data.addGeoJson(results);
-      }
+
 
     </script>
 

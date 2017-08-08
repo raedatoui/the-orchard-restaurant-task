@@ -149,8 +149,11 @@ class Restaurant(ndb.Model):
             "lat": self.lat,
             "lng": self.lng,
             "address": self.address,
+            "phone": self.phone,
             "recentGrade": self.recent_grade,
-            "recentGradeDate": self.recent_grade_date.strftime('%m/%d/%y')
+            "recentScore": self.recent_average_score,
+            "recentCritical": self.recent_critical_count,
+            "recentGradeDate": self.recent_grade_date.strftime('%m/%d/%y'),
         }
 
     @property

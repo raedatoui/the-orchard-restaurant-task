@@ -13,7 +13,7 @@ def visualize():
         return redirect("/etl")
 
 
-@dataviz_view.route('top/<criteria>/.json', methods=['GET'])
+@dataviz_view.route('/top/<criteria>.json', methods=['GET'])
 def top(criteria):
     if etl.Extractor.has_data():
         try:
@@ -21,9 +21,12 @@ def top(criteria):
         except Exception:
             page = 1
 
-        restaurants, _, _ = models.Restaurant.find_by_criteria(criteria, page)
+        restaurants, msg, _ = models.Restaurant.find_by_criteria(criteria, page)
         result = [x.to_geo() for x in restaurants]
-        return jsonify(result)
+        return jsonify({
+            'restaurants': result,
+            'msg': msg
+        })
 
     else:
         return redirect("/etl")
