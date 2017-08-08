@@ -55,7 +55,7 @@ Given that I am using the Maps Geocoding API, which is fairly limited for a free
 
 A single restaurant has many inspections. With the help of computed properties that are generated during the ETL job. querying by these properties becomes trivial
 
-![schema](/Users/raed/Sites/RA/dev/orchard/schema.png)
+![schema](schema.png)
 
 
 
