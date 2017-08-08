@@ -3,6 +3,8 @@ import os
 from importlib import import_module
 
 from flask import Flask
+import pipeline
+import mapreduce
 
 import restaurantfinder as app_root
 from restaurantfinder.blueprints import all_blueprints
@@ -37,6 +39,8 @@ def create_app(config):
     for bp in all_blueprints:
         import_module(bp.import_name)
         app.register_blueprint(bp)
+
+    pipeline.set_enforce_auth(False)
 
     # Return the application instance.
     return app

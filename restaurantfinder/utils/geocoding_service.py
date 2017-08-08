@@ -29,8 +29,14 @@ def get_result(rpc):
         result = rpc.get_result()
         if result.status_code == 200:
             print result.content
-            result = json.loads(result.content)['results'][0]
-            return result['formatted_address'], result['geometry']['location']
+            content = json.loads(result.content)
+            if content['status'] != "OK":
+                return None, 0, 0
+            if len(content['results']) == 0:
+                log.warn("couldnt not geocode {}".format(rpc.request.url_))
+                return None, 0, 0
+            geo = content['results'][0]
+            return geo['formatted_address'], float(geo['geometry']['location']['lat']), float(geo['geometry']['location']['lng'])
     except urlfetch.DownloadError:
         log.exception('Caught exception fetching url')
         raise

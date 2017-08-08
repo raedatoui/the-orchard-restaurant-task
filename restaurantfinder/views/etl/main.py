@@ -1,7 +1,8 @@
 import os
+import time
 
 from flask import current_app as app
-from flask import render_template
+from flask import render_template, redirect
 
 from restaurantfinder import etl
 from restaurantfinder.blueprints import etl as etl_view
@@ -20,7 +21,7 @@ def index():
         return render_template("index.html", nav="etl")
 
 
-@etl_view.route("/start", methods=['GET'])
+@etl_view.route('/start', methods=['GET'])
 def etl_start():
     filename = app.config['RESTAURANTS_CSV']
 
@@ -35,12 +36,9 @@ def etl_start():
             loaded = f.read()
             gcs.write(filename=filename, content_type="text/csv", data=loaded)
 
-    extractor = etl.load_restaurant_data(filename)
-
-    return render_template(
-        "monitor.html", nav="etl",
-        monitor=extractor.base_path + "/status?root=" + extractor.pipeline_id
-    )
+    etl.load_restaurant_data(filename)
+    time.sleep(2)
+    return redirect("/etl")
 
 
 @etl_view.route('/cleanup', methods=['GET'])

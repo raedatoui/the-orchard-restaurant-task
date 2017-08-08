@@ -18,6 +18,10 @@
         <tr>
           <th>#</th>
           <th>Name</th>
+          <th>Total # of A</th>
+          <th>Total # of Cirtical A</th>
+          <th>Average Score</th>
+          <th>Latest Grade</th>
           <th>Address</th>
         </tr>
       </thead>
@@ -26,6 +30,10 @@
         <tr>
           <th scope="row">{{ loop.index + 20 * (pager.page - 1) }}</th>
           <td><a href="/{{ restaurant.key.id() }}">{{ restaurant.name }}</a></td>
+          <td>{{ restaurant.total_a }} / {{ restaurant.total_grades }}</td>
+          <td>{{ restaurant.total_critical_a }} / {{ restaurant.total_grades }}</td>
+          <td>{{ restaurant.average_score }}</td>
+          <td>{{ restaurant.recent_grade }}</td>
           <td>{{ restaurant.address }}</td>
         </tr>
       {%  endfor %}

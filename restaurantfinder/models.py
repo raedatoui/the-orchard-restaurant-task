@@ -29,8 +29,17 @@ class Restaurant(ndb.Model):
     def average_score_fn(self):
         return float(sum([x.score for x in self.inspections])) / float(len(self.inspections))
 
+    def get_grades(self):
+        return [x for x in self.inspections if x.grade in ['A', 'B', 'C']]
+
+    def total_grades_fn(self):
+        return len(self.get_grades())
+
     def total_a_fn(self):
-        return len([x.grade for x in self.inspections if x.grade == 'A'])
+        return len([x for x in self.get_grades() if x.grade == 'A'])
+
+    def total_critical_a_fn(self):
+        return len([x for x in self.get_grades() if x.grade == 'A' and x.critical_flag])
 
     name = ndb.StringProperty(required=True)
 
@@ -50,6 +59,8 @@ class Restaurant(ndb.Model):
     recent_grade = ndb.ComputedProperty(recent_grade_fn)
     average_score = ndb.ComputedProperty(average_score_fn)
     total_a = ndb.ComputedProperty(total_a_fn)
+    total_grades = ndb.ComputedProperty(total_grades_fn)
+    total_critical_a = ndb.ComputedProperty(total_critical_a_fn)
 
     def to_dict(self, include=None, exclude=None):
         result = super(Restaurant, self).to_dict(include=include,
@@ -118,7 +129,7 @@ class Restaurant(ndb.Model):
                 boro=row["BORO"],
                 zipcode=row["ZIPCODE"],
             )
-            # needs_geo = True
+            needs_geo = True
 
         # async datastore call
         ndb_rpc = Inspection(
@@ -136,10 +147,10 @@ class Restaurant(ndb.Model):
         # if we need geo,run the service and update the entity
         if needs_geo:
             geo_rpc = geocoding_service.get_coords_from_address(restaurant)
-            address, lat_lng = geocoding_service.get_result(geo_rpc)
+            address, lat, lng = geocoding_service.get_result(geo_rpc)
             restaurant.address = address
-            restaurant.lat = float(lat_lng['lat'])
-            restaurant.lng = float(lat_lng['lng'])
+            restaurant.lat = lat
+            restaurant.lng = lng
 
         inspection = ndb_rpc.get_result()
         restaurant.inspections_keys.append(inspection)
@@ -147,9 +158,16 @@ class Restaurant(ndb.Model):
 
     @classmethod
     def get_page(cls, page):
-        query = cls.query()
-        restaurants, _, more = query.fetch_page(page_size=20,
-                                              offset=(page - 1) * 20)
+        qry = cls.query()
+        restaurants, _, more = qry.fetch_page(
+            page_size=20,
+            offset=(page - 1) * 20,
+            projection=[
+                cls.name, cls.address, cls.recent_grade,
+                cls.total_a, cls.average_score, cls.total_grades,
+                cls.total_critical_a, cls.inspections_keys
+            ]
+        )
         pager = {
             'page': page,
             'has_next': more,

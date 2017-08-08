@@ -72,6 +72,7 @@ class ExtractPipeline(base_handler.PipelineBase):
                     "file_paths": [file_path]
                 }
             },
+
             shards=50
         )
 
