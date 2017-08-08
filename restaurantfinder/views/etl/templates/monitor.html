@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <div class="container">
+      <p class="lead">The pipeline view should auto refresh but you can also refresh it
+      using the button in top right corner of the view</p>
+    </div>
     <iframe class="monitor" src="{{ monitor }}"></iframe>
-
 
 {% endblock %}

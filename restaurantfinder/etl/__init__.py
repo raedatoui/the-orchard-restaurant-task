@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import logging
 
 import cloudstorage.cloudstorage_api as gcs
-from flask import current_app as app
 from google.appengine.ext import ndb
 from mapreduce import base_handler
 from mapreduce import mapreduce_pipeline
@@ -19,10 +18,7 @@ def create_restaurant(csv_row):
     row = csv_parser.parse_line(csv_row[1])
 
     # take advantage of the mapper step and filter out restaurants
-    # based on desired criteria:
-    # 1- cuisine is Thai
-    # 2- no less than a B or a score of 27 or higher
-    # 3- no graded restaurants will be skipped
+    # based on the cuisine type.
 
     # we filter the restaurant data right away instead
     # creating a large database of all restaurants
@@ -31,11 +27,10 @@ def create_restaurant(csv_row):
 
     if str(row[models.CUISINE_FIELD]).lower() == "thai":
         try:
-            score = int(row["SCORE"])
-            if score <= 27:
-                models.Restaurant.create_from_row(row)
+            models.Restaurant.create_from_row(row)
         except Exception:
             log.info("skipped restaurant without a score")
+            raise
 
 
 def geocode_restaurant(entity):
@@ -138,8 +133,8 @@ class Extractor(ndb.Model):
         pipeline = cls.get()
         if not pipeline:
             return False
-        return pipeline.class_path == "restaurantfinder.etl.ExtractPipeline" \
-               and pipeline.has_finalized
+        return (pipeline.class_path == "restaurantfinder.etl.ExtractPipeline" or
+         pipeline.class_path == "restaurantfinder.etl.GeocoderPipeline") and pipeline.has_finalized
 
     @classmethod
     def has_geo(cls):

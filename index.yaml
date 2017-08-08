@@ -10,6 +10,37 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: Restaurant
+  properties:
+  - name: address
+  - name: name
+
+- kind: Restaurant
+  properties:
+  - name: boro
+  - name: building
+  - name: critical_flag
+  - name: grade
+  - name: name
+  - name: score
+  - name: street
+  - name: zipcode
+
+- kind: Restaurant
+  properties:
+  - name: boro
+  - name: building
+  - name: name
+  - name: street
+  - name: zipcode
+
+- kind: Restaurant
+  properties:
+  - name: critical_flag
+  - name: grade
+  - name: name
+  - name: score
+
 - kind: _AE_Pipeline_Record
   properties:
   - name: class_path

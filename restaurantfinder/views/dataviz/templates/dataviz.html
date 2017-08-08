@@ -1,11 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container">
-      <ul id="restaurants">
+  <div class="container">
+    <table class="table table-bordered">
+      <thead class="thead-inverse">
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody>
       {% for restaurant in restaurants %}
-          <li>{{ restaurant.name }}</li>
-      {% endfor %}
-      </ul>
-    </div>
+        <tr>
+          <th scope="row">{{ loop.index }}</th>
+          <td><a href="/{{ restaurant.key.id() }}">{{ restaurant.name }}</a></td>
+          <td>{{ restaurant.address }}</td>
+        </tr>
+      {%  endfor %}
+      </tbody>
+    </table>
+   </div>
 {% endblock %}

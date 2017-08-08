@@ -5,8 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}The Orchard | Restaurant Task{% endblock %}</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <title>{% block title %}The Orchard | Thai Restaurant Task{% endblock %}</title>
     <link type="text/css" rel="stylesheet" href="/static/css/app.css">
 </head>
 
@@ -21,7 +20,13 @@
   <div class="container main-navbar">
     <ul class="nav nav-pills">
       <li class="nav-item">
-        <a class="nav-link {{ 'active' if nav == 'dataviz' }}" href="/">Dataviz</a>
+        <a class="nav-link {{ 'active' if nav == 'top' }}" href="/top">Top Rated</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ 'active' if nav == 'results' }}" href="/">All Restaurants</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ 'active' if nav == 'dataviz' }}" href="/dataviz">Dataviz</a>
       </li>
       <li class="nav-item">
         <a class="nav-link {{ 'active' if nav == 'etl' }}" href="/etl">ETL</a>

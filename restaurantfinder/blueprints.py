@@ -26,6 +26,7 @@ def _factory(partial_module_string, url_prefix):
     return blueprint
 
 etl = _factory('etl.main', '/etl')
-dataviz = _factory('dataviz.main', '/')
+dataviz = _factory('dataviz.main', '/visualizer')
+results = _factory('results.main', '/')
 
-all_blueprints = (dataviz, etl)
+all_blueprints = (etl, results, dataviz)

@@ -52,4 +52,4 @@ gulp.task('prod', ['set-production'], function() {
 	);
 });
 
-gulp.task('default', ['serve']);
+gulp.task('default', ['prod']);

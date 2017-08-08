@@ -1,7 +1,7 @@
 import os
 
 from flask import current_app as app
-from flask import request, redirect, render_template
+from flask import render_template
 
 from restaurantfinder import etl
 from restaurantfinder.blueprints import etl as etl_view

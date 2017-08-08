@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <hr />
+  <div class="container">
+    <div class="row">
+      <h2>{{ restaurant.name }}</h2>
+    </div>
+    <div class="row">
+      <p class="lead">{{ restaurant.address }}</p>
+    </div>
+    <div class="row">
+      <p>Tel: {{ restaurant.phone }}</p>
+    </div>
+
+    <h2>Inspections</h2>
+    <table class="table table-bordered">
+      <thead class="thead-inverse">
+        <tr>
+          <th>#</th>
+          <th>Inspection Date</th>
+          <th>Grade</th>
+          <th>Grade Date</th>
+          <th>Score</th>
+          <th>Critical</th>
+          <th>Violation</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for inspection in restaurant.inspections %}
+        <tr>
+          <th scope="row">{{ loop.index }}</th>
+          <td>{{ inspection.inspection_date }}</td>
+          <td>{{ inspection.grade}}</td>
+          <td>{{ inspection.grade_date}}</td>
+          <td>{{ inspection.score}}</td>
+          <td class="{{ 'table-danger' if inspection.critical_flag }}">{{ 'Yes' if inspection.critical_flag else 'No'}}</td>
+          <td>{{ inspection.violation_description }}</td>
+        </tr>
+      {%  endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
