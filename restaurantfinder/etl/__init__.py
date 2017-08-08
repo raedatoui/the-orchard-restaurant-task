@@ -76,19 +76,6 @@ class ExtractPipeline(base_handler.PipelineBase):
         )
 
 
-class GeocoderPipeline(base_handler.PipelineBase):
-    def run(self):
-        yield mapreduce_pipeline.MapPipeline(
-            "geocoder",
-            "restaurantfinder.etl.geocode_restaurant",
-            "mapreduce.input_readers.DatastoreInputReader",
-            params={
-                "entity_kind": "restaurantfinder.models.Restaurant"
-            },
-            shards=2
-        )
-
-
 class Extractor(ndb.Model):
     pipeline_id = ndb.StringProperty()
     base_path = ndb.StringProperty()
@@ -133,8 +120,8 @@ class Extractor(ndb.Model):
         pipeline = cls.get()
         if not pipeline:
             return False
-        return (pipeline.class_path == "restaurantfinder.etl.ExtractPipeline" or
-         pipeline.class_path == "restaurantfinder.etl.GeocoderPipeline") and pipeline.has_finalized
+        return pipeline.class_path == "restaurantfinder.etl.ExtractPipeline" \
+               and pipeline.has_finalized
 
     @classmethod
     def has_geo(cls):
@@ -143,13 +130,6 @@ class Extractor(ndb.Model):
             return False
         return pipeline.class_path == "restaurantfinder.etl.GeocoderPipeline" \
                and pipeline.has_finalized
-
-
-def geocode_restaurant_data():
-    job = GeocoderPipeline()
-    job.start()
-    Extractor.set(job)
-    return job
 
 
 def load_restaurant_data(filename):

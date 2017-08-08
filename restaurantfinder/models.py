@@ -21,6 +21,17 @@ class Inspection(ndb.Model):
 
 
 class Restaurant(ndb.Model):
+    def recent_grade_fn(self):
+        for inspection in self.inspections:
+            if inspection.grade is not "":
+                return inspection.grade
+
+    def average_score_fn(self):
+        return float(sum([x.score for x in self.inspections])) / float(len(self.inspections))
+
+    def total_a_fn(self):
+        return len([x.grade for x in self.inspections if x.grade == 'A'])
+
     name = ndb.StringProperty(required=True)
 
     # geocoding properties
@@ -35,6 +46,10 @@ class Restaurant(ndb.Model):
     phone = ndb.StringProperty()
     cuisine = ndb.StringProperty()
     inspections_keys = ndb.KeyProperty(repeated=True)
+
+    recent_grade = ndb.ComputedProperty(recent_grade_fn)
+    average_score = ndb.ComputedProperty(average_score_fn)
+    total_a = ndb.ComputedProperty(total_a_fn)
 
     def to_dict(self, include=None, exclude=None):
         result = super(Restaurant, self).to_dict(include=include,
@@ -103,7 +118,7 @@ class Restaurant(ndb.Model):
                 boro=row["BORO"],
                 zipcode=row["ZIPCODE"],
             )
-            needs_geo = True
+            # needs_geo = True
 
         # async datastore call
         ndb_rpc = Inspection(
@@ -136,6 +151,7 @@ class Restaurant(ndb.Model):
         restaurants, _, more = query.fetch_page(page_size=20,
                                               offset=(page - 1) * 20)
         pager = {
+            'page': page,
             'has_next': more,
             'has_prev': page > 1,
             'next_page': page + 1 if more else page,

@@ -43,15 +43,6 @@ def etl_start():
     )
 
 
-@etl_view.route('/geocode', methods=['GET'])
-def geocode():
-    extractor = etl.geocode_restaurant_data()
-    return render_template(
-        "monitor.html", nav="etl",
-        monitor=extractor.base_path + "/status?root=" + extractor.pipeline_id
-    )
-
-
 @etl_view.route('/cleanup', methods=['GET'])
 def cleanup():
     cleaner = etl.clear_restaurant_data()
