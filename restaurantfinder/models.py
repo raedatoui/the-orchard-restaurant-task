@@ -142,6 +142,17 @@ class Restaurant(ndb.Model):
 
         return result
 
+    def to_geo(self):
+        return {
+            "id": self.key.id(),
+            "name": self.name,
+            "lat": self.lat,
+            "lng": self.lng,
+            "address": self.address,
+            "recentGrade": self.recent_grade,
+            "recentGradeDate": self.recent_grade_date.strftime('%m/%d/%y')
+        }
+
     @property
     def inspections(self):
         return sorted(
